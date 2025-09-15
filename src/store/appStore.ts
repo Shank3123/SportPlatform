@@ -5,12 +5,16 @@ interface AppState {
   currentView: 'home' | 'discover' | 'notifications' | 'messages' | 'profile' | 'expert';
   posts: Post[];
   users: User[];
+  comments: Comment[];
   conversations: Conversation[];
   messages: Message[];
   notifications: Notification[];
   setCurrentView: (view: AppState['currentView']) => void;
   addPost: (post: Post) => void;
   updatePostLikes: (postId: string, likes: number, isLiked: boolean) => void;
+  updatePostShares: (postId: string, shares: number) => void;
+  addComment: (comment: Comment) => void;
+  getPostComments: (postId: string) => Comment[];
   getFilteredPosts: (userSportsCategory: string) => Post[];
   getFilteredUsers: (userSportsCategory: string) => User[];
   addMessage: (message: Message) => void;
@@ -198,6 +202,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   currentView: 'home',
   posts: mockPosts,
   users: mockUsers,
+  comments: [],
   conversations: [],
   messages: [],
   notifications: mockNotifications,
@@ -214,6 +219,34 @@ export const useAppStore = create<AppState>((set, get) => ({
           : post
       ),
     }));
+  },
+
+  updatePostShares: (postId, shares) => {
+    set((state) => ({
+      posts: state.posts.map(post =>
+        post.id === postId
+          ? { ...post, shares }
+          : post
+      ),
+    }));
+  },
+
+  addComment: (comment) => {
+    set((state) => ({
+      comments: [...state.comments, comment],
+      posts: state.posts.map(post =>
+        post.id === comment.postId
+          ? { ...post, comments: post.comments + 1 }
+          : post
+      ),
+    }));
+  },
+
+  getPostComments: (postId) => {
+    const { comments } = get();
+    return comments
+      .filter(comment => comment.postId === postId)
+      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
   },
 
   getFilteredPosts: (userSportsCategory) => {
