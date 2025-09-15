@@ -1,13 +1,26 @@
 import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Settings, Edit, Calendar } from 'lucide-react';
+import { Settings, Edit, Calendar, Users, Share, FileText } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
+import { useAppStore } from '../../store/appStore';
 import { Button } from '../ui/Button';
+import { EditProfileModal } from './EditProfileModal';
+import { FollowersModal } from './FollowersModal';
+import { PostCard } from '../posts/PostCard';
 
 export function UserProfile() {
   const { user } = useAuthStore();
+  const { getSharedPosts, getFilteredUsers } = useAppStore();
+  const [activeTab, setActiveTab] = useState<'posts' | 'shared'>('posts');
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showFollowersModal, setShowFollowersModal] = useState(false);
+  const [followersType, setFollowersType] = useState<'followers' | 'following'>('followers');
 
   if (!user) return null;
+
+  const sharedPosts = getSharedPosts(user.id);
+  const sameCategory = getFilteredUsers(user.sportsCategory);
 
   const getVerificationBadge = () => {
     if (!user.isVerified) return null;
@@ -37,6 +50,11 @@ export function UserProfile() {
         {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
       </span>
     );
+  };
+
+  const handleShowFollowers = (type: 'followers' | 'following') => {
+    setFollowersType(type);
+    setShowFollowersModal(true);
   };
 
   return (
@@ -70,6 +88,11 @@ export function UserProfile() {
           
           <div className="flex items-center space-x-2">
             <Button variant="outline" size="sm">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setShowEditModal(true)}
+            >
               <Edit className="h-4 w-4 mr-2" />
               Edit
             </Button>
@@ -88,14 +111,20 @@ export function UserProfile() {
             <p className="text-xl font-bold text-gray-900">{user.posts}</p>
             <p className="text-sm text-gray-600">Posts</p>
           </div>
-          <div className="text-center">
+          <button 
+            onClick={() => handleShowFollowers('followers')}
+            className="text-center hover:bg-gray-50 p-2 rounded-lg transition-colors"
+          >
             <p className="text-xl font-bold text-gray-900">{user.followers.toLocaleString()}</p>
             <p className="text-sm text-gray-600">Followers</p>
-          </div>
-          <div className="text-center">
+          </button>
+          <button 
+            onClick={() => handleShowFollowers('following')}
+            className="text-center hover:bg-gray-50 p-2 rounded-lg transition-colors"
+          >
             <p className="text-xl font-bold text-gray-900">{user.following}</p>
             <p className="text-sm text-gray-600">Following</p>
-          </div>
+          </button>
         </div>
 
         <div className="flex items-center space-x-4 text-sm text-gray-600">
@@ -117,7 +146,82 @@ export function UserProfile() {
             </p>
           </motion.div>
         )}
+
+        {/* Tabs */}
+        <div className="mt-6 border-b border-gray-200">
+          <nav className="flex space-x-8">
+            <button
+              onClick={() => setActiveTab('posts')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'posts'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <FileText className="h-4 w-4 inline mr-2" />
+              Posts ({user.posts})
+            </button>
+            <button
+              onClick={() => setActiveTab('shared')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'shared'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <Share className="h-4 w-4 inline mr-2" />
+              Shared ({sharedPosts.length})
+            </button>
+          </nav>
+        </div>
+
+        {/* Tab Content */}
+        <div className="mt-6">
+          {activeTab === 'posts' && (
+            <div className="text-center py-12">
+              <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No posts yet</h3>
+              <p className="text-gray-600">
+                {user.role === 'coach' ? 'Share your expertise with the community!' : 'Start engaging with coaches!'}
+              </p>
+            </div>
+          )}
+          
+          {activeTab === 'shared' && (
+            <div>
+              {sharedPosts.length === 0 ? (
+                <div className="text-center py-12">
+                  <Share className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No shared posts</h3>
+                  <p className="text-gray-600">Posts you share will appear here</p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {sharedPosts.map((post) => (
+                    <PostCard key={post.id} post={post} />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Modals */}
+      {showEditModal && (
+        <EditProfileModal
+          user={user}
+          onClose={() => setShowEditModal(false)}
+        />
+      )}
+      
+      {showFollowersModal && (
+        <FollowersModal
+          users={sameCategory}
+          type={followersType}
+          onClose={() => setShowFollowersModal(false)}
+        />
+      )}
     </motion.div>
   );
 }

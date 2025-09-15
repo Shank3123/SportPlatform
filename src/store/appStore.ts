@@ -13,6 +13,8 @@ interface AppState {
   addPost: (post: Post) => void;
   updatePostLikes: (postId: string, likes: number, isLiked: boolean) => void;
   updatePostShares: (postId: string, shares: number) => void;
+  addSharedPost: (userId: string, postId: string) => void;
+  getSharedPosts: (userId: string) => Post[];
   addComment: (comment: Comment) => void;
   getPostComments: (postId: string) => Comment[];
   getFilteredPosts: (userSportsCategory: string) => Post[];
@@ -48,6 +50,7 @@ const mockUsers: User[] = [
     followers: 2500,
     following: 150,
     posts: 89,
+    sharedPosts: [],
     createdAt: '2024-01-01T00:00:00Z',
   },
   {
@@ -63,6 +66,7 @@ const mockUsers: User[] = [
     followers: 1800,
     following: 200,
     posts: 156,
+    sharedPosts: [],
     createdAt: '2024-01-01T00:00:00Z',
   },
   {
@@ -78,6 +82,7 @@ const mockUsers: User[] = [
     followers: 1200,
     following: 80,
     posts: 67,
+    sharedPosts: [],
     createdAt: '2024-01-01T00:00:00Z',
   },
   {
@@ -93,6 +98,7 @@ const mockUsers: User[] = [
     followers: 150,
     following: 45,
     posts: 12,
+    sharedPosts: [],
     createdAt: '2024-02-01T00:00:00Z',
   },
   {
@@ -108,6 +114,7 @@ const mockUsers: User[] = [
     followers: 89,
     following: 67,
     posts: 8,
+    sharedPosts: [],
     createdAt: '2024-02-15T00:00:00Z',
   },
   {
@@ -123,6 +130,7 @@ const mockUsers: User[] = [
     followers: 67,
     following: 34,
     posts: 3,
+    sharedPosts: [],
     createdAt: '2024-02-20T00:00:00Z',
   },
 ];
@@ -229,6 +237,24 @@ export const useAppStore = create<AppState>((set, get) => ({
           : post
       ),
     }));
+  },
+
+  addSharedPost: (userId, postId) => {
+    set((state) => ({
+      users: state.users.map(user =>
+        user.id === userId
+          ? { ...user, sharedPosts: [...(user.sharedPosts || []), postId] }
+          : user
+      ),
+    }));
+  },
+
+  getSharedPosts: (userId) => {
+    const { users, posts } = get();
+    const user = users.find(u => u.id === userId);
+    if (!user?.sharedPosts) return [];
+    
+    return posts.filter(post => user.sharedPosts?.includes(post.id));
   },
 
   addComment: (comment) => {

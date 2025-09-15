@@ -12,6 +12,7 @@ export interface User {
   following: number;
   posts: number;
   createdAt: string;
+  sharedPosts?: string[]; // Array of post IDs that user has shared
   documents?: VerificationDocument[];
 }
 

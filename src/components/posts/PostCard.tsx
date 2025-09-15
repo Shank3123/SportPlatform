@@ -4,6 +4,7 @@ import { Heart, MessageCircle, Share, MoreHorizontal, Send } from 'lucide-react'
 import { Post } from '../../types';
 import { useAppStore } from '../../store/appStore';
 import { useAuthStore } from '../../store/authStore';
+import { useAuthStore } from '../../store/authStore';
 import { Button } from '../ui/Button';
 import toast from 'react-hot-toast';
 
@@ -13,7 +14,7 @@ interface PostCardProps {
 
 export function PostCard({ post }: PostCardProps) {
   const { user } = useAuthStore();
-  const { updatePostLikes, updatePostShares, addComment, getPostComments, addNotification } = useAppStore();
+  const { updatePostLikes, updatePostShares, addSharedPost, addComment, getPostComments, addNotification } = useAppStore();
   const [isLiked, setIsLiked] = useState(post.isLiked);
   const [likesCount, setLikesCount] = useState(post.likes);
   const [sharesCount, setSharesCount] = useState(post.shares);
@@ -55,6 +56,9 @@ export function PostCard({ post }: PostCardProps) {
     
     // Update the post in the store
     updatePostShares(post.id, newSharesCount);
+    
+    // Add to user's shared posts
+    addSharedPost(user.id, post.id);
     
     // Copy post URL to clipboard (mock functionality)
     navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`).then(() => {
