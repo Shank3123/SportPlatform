@@ -19,6 +19,9 @@ interface AppState {
   getPostComments: (postId: string) => Comment[];
   getFilteredPosts: (userSportsCategory: string) => Post[];
   getFilteredUsers: (userSportsCategory: string) => User[];
+  getUserPosts: (userId: string) => Post[];
+  getUserFollowers: (userId: string) => User[];
+  getUserFollowing: (userId: string) => User[];
   addMessage: (message: Message) => void;
   getConversations: (userId: string, userSportsCategory: string) => Conversation[];
   addNotification: (notification: Notification) => void;
@@ -285,6 +288,23 @@ export const useAppStore = create<AppState>((set, get) => ({
   getFilteredUsers: (userSportsCategory) => {
     const { users } = get();
     return users.filter(user => user.sportsCategory === userSportsCategory);
+  },
+
+  getUserPosts: (userId) => {
+    const { posts } = get();
+    return posts.filter(post => post.userId === userId);
+  },
+
+  getUserFollowers: (userId) => {
+    const { users } = get();
+    // Mock followers - in a real app this would come from a followers relationship table
+    return users.filter(user => user.id !== userId).slice(0, 3);
+  },
+
+  getUserFollowing: (userId) => {
+    const { users } = get();
+    // Mock following - in a real app this would come from a following relationship table
+    return users.filter(user => user.id !== userId).slice(0, 2);
   },
 
   addMessage: (message) => {
