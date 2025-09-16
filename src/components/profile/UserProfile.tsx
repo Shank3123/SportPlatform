@@ -183,7 +183,7 @@ export function UserProfile() {
       {/* Modals */}
       {showEditModal && (
         <EditProfileModal
-          isOpen={showEditModal}
+          user={user}
           onClose={() => setShowEditModal(false)}
         />
       )}
