@@ -59,6 +59,9 @@ export function PostCard({ post }: PostCardProps) {
     // Add to user's shared posts
     addSharedPost(user.id, post.id);
     
+    // Force re-render by updating user in auth store
+    const updatedUser = { ...user, sharedPosts: [...(user.sharedPosts || []), post.id] };
+    
     // Copy post URL to clipboard (mock functionality)
     navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`).then(() => {
       toast.success('Post link copied to clipboard!');

@@ -194,7 +194,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   updateUser: (userData: Partial<User>) => {
     const currentUser = get().user;
     if (currentUser) {
-      set({ user: { ...currentUser, ...userData } });
+      const updatedUser = { ...currentUser, ...userData };
+      set({ user: updatedUser });
+      
+      // Also update the user in the app store
+      const { updateUserInStore } = require('./appStore').useAppStore.getState();
+      if (updateUserInStore) {
+        updateUserInStore(updatedUser);
+      }
     }
   },
 }));

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Settings, Edit, Users, UserPlus } from 'lucide-react';
+import { Settings, Edit, Users, UserPlus, X } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useAppStore } from '../../store/appStore';
 import { PostCard } from '../posts/PostCard';
@@ -15,6 +15,7 @@ export function UserProfile() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showFollowersModal, setShowFollowersModal] = useState(false);
   const [followersModalType, setFollowersModalType] = useState<'followers' | 'following'>('followers');
+  const [showSettings, setShowSettings] = useState(false);
 
   if (!user) return null;
 
@@ -113,7 +114,11 @@ export function UserProfile() {
                 <Edit className="h-4 w-4 mr-2" />
                 Edit Profile
               </Button>
-              <Button variant="outline" size="sm">
+              <Button 
+                onClick={() => setShowSettings(true)}
+                variant="outline" 
+                size="sm"
+              >
                 <Settings className="h-4 w-4 mr-2" />
                 Settings
               </Button>
@@ -190,11 +195,57 @@ export function UserProfile() {
 
       {showFollowersModal && (
         <FollowersModal
-          isOpen={showFollowersModal}
-          onClose={() => setShowFollowersModal(false)}
-          type={followersModalType}
           users={followersModalType === 'followers' ? followers : following}
+          type={followersModalType}
+          onClose={() => setShowFollowersModal(false)}
         />
+      )}
+
+      {showSettings && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-gray-900">Settings</h2>
+              <button
+                onClick={() => setShowSettings(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-3 border rounded-lg">
+                <span className="text-gray-700">Push Notifications</span>
+                <input type="checkbox" defaultChecked className="toggle" />
+              </div>
+              
+              <div className="flex items-center justify-between p-3 border rounded-lg">
+                <span className="text-gray-700">Email Notifications</span>
+                <input type="checkbox" defaultChecked className="toggle" />
+              </div>
+              
+              <div className="flex items-center justify-between p-3 border rounded-lg">
+                <span className="text-gray-700">Privacy Mode</span>
+                <input type="checkbox" className="toggle" />
+              </div>
+              
+              <div className="flex items-center justify-between p-3 border rounded-lg">
+                <span className="text-gray-700">Dark Mode</span>
+                <input type="checkbox" className="toggle" />
+              </div>
+            </div>
+            
+            <div className="mt-6 pt-4 border-t">
+              <Button
+                onClick={() => setShowSettings(false)}
+                className="w-full"
+              >
+                Save Settings
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
