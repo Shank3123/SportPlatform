@@ -4,7 +4,6 @@ import { Heart, MessageCircle, Share, MoreHorizontal, Send } from 'lucide-react'
 import { Post } from '../../types';
 import { useAppStore } from '../../store/appStore';
 import { useAuthStore } from '../../store/authStore';
-import { useAuthStore } from '../../store/authStore';
 import { Button } from '../ui/Button';
 import toast from 'react-hot-toast';
 
