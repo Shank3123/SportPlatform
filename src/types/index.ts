@@ -119,3 +119,4 @@ export interface TokenTransaction {
   reason: string;
   description: string;
   createdAt: string;
+}
