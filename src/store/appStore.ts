@@ -23,7 +23,7 @@ interface AppState {
   getUserFollowers: (userId: string) => User[];
   getUserFollowing: (userId: string) => User[];
   addMessage: (message: Message) => void;
-  getConversations: (userId: string, userSportsCategory: string) => Conversation[];
+  getConversations: (userId: string, userSportsCategory: string | 'all') => Conversation[];
   addNotification: (notification: Notification) => void;
   markNotificationAsRead: (notificationId: string) => void;
   updateUserInStore: (updatedUser: User) => void;
@@ -293,7 +293,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   getConversations: (userId, userSportsCategory) => {
     const { users, messages } = get();
     const filteredUsers = users.filter(user => 
-      user.sportsCategory === userSportsCategory && user.id !== userId
+      (userSportsCategory === 'all' || user.sportsCategory === userSportsCategory) && user.id !== userId
     );
     
     const conversations: Conversation[] = filteredUsers.map(otherUser => {

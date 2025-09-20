@@ -8,15 +8,17 @@ import { Button } from '../ui/Button';
 
 export function DiscoverPage() {
   const { user } = useAuthStore();
-  const { getFilteredUsers } = useAppStore();
+  const { users } = useAppStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'coaches' | 'users'>('all');
+  const [sportFilter, setSportFilter] = useState<'all' | 'coco' | 'martial-arts' | 'calorie-fight'>('all');
 
   if (!user) return null;
 
-  const filteredUsers = getFilteredUsers(user.sportsCategory);
+  // Get all users instead of just same sport category
+  const allUsers = users.filter(u => u.id !== user.id);
   
-  const searchResults = filteredUsers.filter(u => {
+  const searchResults = allUsers.filter(u => {
     const matchesSearch = u.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          u.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          u.bio?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -25,7 +27,9 @@ export function DiscoverPage() {
                          (filterType === 'coaches' && u.role === 'coach') ||
                          (filterType === 'users' && u.role === 'user');
     
-    return matchesSearch && matchesFilter && u.id !== user.id;
+    const matchesSport = sportFilter === 'all' || u.sportsCategory === sportFilter;
+    
+    return matchesSearch && matchesFilter && matchesSport;
   });
 
   const handleFollow = (userId: string) => {
@@ -57,23 +61,25 @@ export function DiscoverPage() {
     >
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">
-          Discover {user.sportsCategory.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())} Community
+          Discover Sports Community
         </h1>
         
         {/* Search and Filter */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <div className="flex flex-col gap-4 mb-6">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Search athletes and coaches..."
+              placeholder="Search athletes and coaches from all sports..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           
-          <div className="flex space-x-2">
+          {/* Role Filter */}
+          <div className="flex flex-wrap gap-2">
+            <span className="text-sm font-medium text-gray-700 self-center">Role:</span>
             <button
               onClick={() => setFilterType('all')}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -105,28 +111,78 @@ export function DiscoverPage() {
               Athletes
             </button>
           </div>
+          
+          {/* Sport Filter */}
+          <div className="flex flex-wrap gap-2">
+            <span className="text-sm font-medium text-gray-700 self-center">Sport:</span>
+            <button
+              onClick={() => setSportFilter('all')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                sportFilter === 'all'
+                  ? 'bg-blue-100 text-blue-700'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              All Sports
+            </button>
+            <button
+              onClick={() => setSportFilter('coco')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                sportFilter === 'coco'
+                  ? 'bg-orange-100 text-orange-700'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              Coco
+            </button>
+            <button
+              onClick={() => setSportFilter('martial-arts')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                sportFilter === 'martial-arts'
+                  ? 'bg-red-100 text-red-700'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              Martial Arts
+            </button>
+            <button
+              onClick={() => setSportFilter('calorie-fight')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                sportFilter === 'calorie-fight'
+                  ? 'bg-green-100 text-green-700'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              Calorie Fight
+            </button>
+          </div>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-blue-50 p-4 rounded-lg text-center">
             <Users className="h-6 w-6 text-blue-600 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-blue-600">{filteredUsers.length}</p>
+            <p className="text-2xl font-bold text-blue-600">{allUsers.length}</p>
             <p className="text-sm text-blue-600">Total Members</p>
           </div>
           <div className="bg-purple-50 p-4 rounded-lg text-center">
             <TrendingUp className="h-6 w-6 text-purple-600 mx-auto mb-2" />
             <p className="text-2xl font-bold text-purple-600">
-              {filteredUsers.filter(u => u.role === 'coach').length}
+              {allUsers.filter(u => u.role === 'coach').length}
             </p>
             <p className="text-sm text-purple-600">Coaches</p>
           </div>
           <div className="bg-green-50 p-4 rounded-lg text-center">
             <Users className="h-6 w-6 text-green-600 mx-auto mb-2" />
             <p className="text-2xl font-bold text-green-600">
-              {filteredUsers.filter(u => u.role === 'user').length}
+              {allUsers.filter(u => u.role === 'user').length}
             </p>
             <p className="text-sm text-green-600">Athletes</p>
+          </div>
+          <div className="bg-yellow-50 p-4 rounded-lg text-center">
+            <TrendingUp className="h-6 w-6 text-yellow-600 mx-auto mb-2" />
+            <p className="text-2xl font-bold text-yellow-600">3</p>
+            <p className="text-sm text-yellow-600">Sports</p>
           </div>
         </div>
       </div>
@@ -157,11 +213,20 @@ export function DiscoverPage() {
               
               <p className="text-gray-600 text-sm mb-1">@{targetUser.username}</p>
               
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mb-3 ${
-                targetUser.role === 'coach' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'
-              }`}>
-                {targetUser.role.charAt(0).toUpperCase() + targetUser.role.slice(1)}
-              </span>
+              <div className="flex flex-col items-center space-y-1 mb-3">
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  targetUser.role === 'coach' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'
+                }`}>
+                  {targetUser.role.charAt(0).toUpperCase() + targetUser.role.slice(1)}
+                </span>
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  targetUser.sportsCategory === 'coco' ? 'bg-orange-100 text-orange-800' :
+                  targetUser.sportsCategory === 'martial-arts' ? 'bg-red-100 text-red-800' :
+                  'bg-green-100 text-green-800'
+                }`}>
+                  {targetUser.sportsCategory.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                </span>
+              </div>
               
               {targetUser.bio && (
                 <p className="text-gray-600 text-sm mb-4 line-clamp-2">{targetUser.bio}</p>

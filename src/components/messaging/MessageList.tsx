@@ -18,7 +18,8 @@ export function MessageList({ onConversationSelect }: MessageListProps) {
 
   useEffect(() => {
     if (user) {
-      const userConversations = getConversations(user.id, user.sportsCategory);
+      // Get conversations from all sports categories for cross-sport interaction
+      const userConversations = getConversations(user.id, 'all');
       setConversations(userConversations);
     }
   }, [user, getConversations]);
