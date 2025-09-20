@@ -6,6 +6,7 @@ import { MessagesPage } from '../components/messaging/MessagesPage';
 import { DiscoverPage } from '../components/discover/DiscoverPage';
 import { NotificationsPage } from '../components/notifications/NotificationsPage';
 import { ExpertDashboard } from '../components/expert/ExpertDashboard';
+import { PlayPage } from '../components/play/PlayPage';
 import { useAuthStore } from '../store/authStore';
 import { useSocketStore } from '../store/socketStore';
 import { useAppStore } from '../store/appStore';
@@ -35,6 +36,8 @@ export function Dashboard() {
         return <UserProfile />;
       case 'expert':
         return <ExpertDashboard />;
+      case 'play':
+        return <PlayPage />;
       default:
         return <Feed />;
     }

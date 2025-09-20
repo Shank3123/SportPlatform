@@ -106,6 +106,18 @@ export function Header() {
               <MessageCircle className="h-5 w-5" />
               <span>Messages</span>
             </button>
+            
+            <button 
+              onClick={() => setCurrentView('play')}
+              className={`flex items-center space-x-2 transition-colors ${
+                currentView === 'play' ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'
+              }`}
+            >
+              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+              </svg>
+              <span>Play</span>
+            </button>
           </nav>
 
           {/* User Profile */}

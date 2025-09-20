@@ -70,3 +70,52 @@ export interface Conversation {
   unreadCount: number;
   updatedAt: string;
 }
+
+export interface Video {
+  id: string;
+  title: string;
+  description: string;
+  thumbnailUrl: string;
+  videoUrl: string;
+  duration: number; // in seconds
+  coachId: string;
+  coach: User;
+  category: 'coco' | 'martial-arts' | 'calorie-fight';
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  type: 'free' | 'premium';
+  tokenCost: number; // 0 for free videos
+  views: number;
+  likes: number;
+  isLiked: boolean;
+  tags: string[];
+  createdAt: string;
+}
+
+export interface Membership {
+  id: string;
+  name: string;
+  description: string;
+  price: number; // in tokens
+  duration: number; // in days
+  benefits: string[];
+  coachId: string;
+  coach: User;
+  isActive: boolean;
+}
+
+export interface UserTokens {
+  userId: string;
+  balance: number;
+  totalEarned: number;
+  totalSpent: number;
+  transactions: TokenTransaction[];
+}
+
+export interface TokenTransaction {
+  id: string;
+  userId: string;
+  type: 'earned' | 'spent' | 'purchased';
+  amount: number;
+  reason: string;
+  description: string;
+  createdAt: string;

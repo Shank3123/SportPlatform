@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { Post, User, Conversation, Message } from '../types';
 
 interface AppState {
   currentView: 'home' | 'discover' | 'notifications' | 'messages' | 'profile' | 'expert';
@@ -344,5 +343,166 @@ export const useAppStore = create<AppState>((set, get) => ({
         user.id === updatedUser.id ? updatedUser : user
       ),
     }));
+  },
+
+  // Video functions
+  addVideo: (video) => set((state) => ({ videos: [video, ...state.videos] })),
+
+  getVideosByCategory: (category) => {
+    const { videos } = get();
+    if (category === 'all') return videos;
+    return videos.filter(video => video.category === category);
+  },
+
+  getVideosByCoach: (coachId) => {
+    const { videos } = get();
+    return videos.filter(video => video.coachId === coachId);
+  },
+
+  likeVideo: (videoId, userId) => {
+    set((state) => ({
+      videos: state.videos.map(video =>
+        video.id === videoId
+          ? { 
+              ...video, 
+              likes: video.isLiked ? video.likes - 1 : video.likes + 1,
+              isLiked: !video.isLiked 
+            }
+          : video
+      ),
+    }));
+  },
+
+  watchVideo: (videoId, userId) => {
+    // Award tokens for watching videos
+    const { addTokens } = get();
+    addTokens(userId, 5, 'earned', 'Watched video');
+    
+    // Increment view count
+    set((state) => ({
+      videos: state.videos.map(video =>
+        video.id === videoId
+          ? { ...video, views: video.views + 1 }
+          : video
+      ),
+    }));
+  },
+
+  // Token functions
+  getUserTokens: (userId) => {
+    const { userTokens } = get();
+    let userToken = userTokens.find(ut => ut.userId === userId);
+    
+    if (!userToken) {
+      // Create initial token balance for new user
+      userToken = {
+        userId,
+        balance: 100, // Starting bonus
+        totalEarned: 100,
+        totalSpent: 0,
+        transactions: [{
+          id: Date.now().toString(),
+          userId,
+          type: 'earned',
+          amount: 100,
+          reason: 'earned',
+          description: 'Welcome bonus',
+          createdAt: new Date().toISOString(),
+        }],
+      };
+      
+      set((state) => ({
+        userTokens: [...state.userTokens, userToken!]
+      }));
+    }
+    
+    return userToken;
+  },
+
+  addTokens: (userId, amount, reason, description) => {
+    set((state) => {
+      const existingTokenIndex = state.userTokens.findIndex(ut => ut.userId === userId);
+      
+      const transaction: TokenTransaction = {
+        id: Date.now().toString(),
+        userId,
+        type: reason as 'earned' | 'spent' | 'purchased',
+        amount,
+        reason,
+        description,
+        createdAt: new Date().toISOString(),
+      };
+      
+      if (existingTokenIndex >= 0) {
+        const updatedTokens = [...state.userTokens];
+        updatedTokens[existingTokenIndex] = {
+          ...updatedTokens[existingTokenIndex],
+          balance: updatedTokens[existingTokenIndex].balance + amount,
+          totalEarned: updatedTokens[existingTokenIndex].totalEarned + amount,
+          transactions: [transaction, ...updatedTokens[existingTokenIndex].transactions],
+        };
+        return { userTokens: updatedTokens };
+      } else {
+        const newUserToken: UserTokens = {
+          userId,
+          balance: 100 + amount, // Welcome bonus + earned amount
+          totalEarned: 100 + amount,
+          totalSpent: 0,
+          transactions: [transaction],
+        };
+        return { userTokens: [...state.userTokens, newUserToken] };
+      }
+    });
+  },
+
+  spendTokens: (userId, amount, reason, description) => {
+    const { userTokens } = get();
+    const userToken = userTokens.find(ut => ut.userId === userId);
+    
+    if (!userToken || userToken.balance < amount) {
+      return false; // Insufficient tokens
+    }
+    
+    set((state) => {
+      const transaction: TokenTransaction = {
+        id: Date.now().toString(),
+        userId,
+        type: 'spent',
+        amount: -amount,
+        reason,
+        description,
+        createdAt: new Date().toISOString(),
+      };
+      
+      return {
+        userTokens: state.userTokens.map(ut =>
+          ut.userId === userId
+            ? {
+                ...ut,
+                balance: ut.balance - amount,
+                totalSpent: ut.totalSpent + amount,
+                transactions: [transaction, ...ut.transactions],
+              }
+            : ut
+        ),
+      };
+    });
+    
+    return true;
+  },
+
+  purchaseTokens: (userId, amount, price) => {
+    const { addTokens } = get();
+    addTokens(userId, amount, 'purchased', `Purchased ${amount} tokens for $${price}`);
+  },
+
+  // Membership functions
+  addMembership: (membership) => set((state) => ({ 
+    memberships: [...state.memberships, membership] 
+  })),
+
+  getMembershipsByCoach: (coachId) => {
+    const { memberships } = get();
+    return memberships.filter(membership => membership.coachId === coachId);
   },
 }));
