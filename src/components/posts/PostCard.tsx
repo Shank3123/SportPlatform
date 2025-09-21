@@ -59,15 +59,28 @@ export function PostCard({ post }: PostCardProps) {
     // Add to user's shared posts
     addSharedPost(user.id, post.id);
     
-    // Force re-render by updating user in auth store
-    const updatedUser = { ...user, sharedPosts: [...(user.sharedPosts || []), post.id] };
+    const shareUrl = `${window.location.origin}/post/${post.id}`;
+    const shareText = `Check out this post by ${post.user.fullName}: "${post.content.substring(0, 100)}${post.content.length > 100 ? '...' : ''}"`;
     
-    // Copy post URL to clipboard (mock functionality)
-    navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`).then(() => {
-      toast.success('Post link copied to clipboard!');
-    }).catch(() => {
-      toast.success('Post shared!');
-    });
+    if (navigator.share) {
+      navigator.share({
+        title: `Post by ${post.user.fullName}`,
+        text: shareText,
+        url: shareUrl,
+      }).then(() => {
+        toast.success('Post shared successfully!');
+      }).catch(() => {
+        navigator.clipboard.writeText(`${shareText} ${shareUrl}`).then(() => {
+          toast.success('Post link copied to clipboard!');
+        });
+      });
+    } else {
+      navigator.clipboard.writeText(`${shareText} ${shareUrl}`).then(() => {
+        toast.success('Post link copied to clipboard!');
+      }).catch(() => {
+        toast.success('Post shared!');
+      });
+    }
     
     // Add notification if not own post
     if (user.id !== post.userId) {

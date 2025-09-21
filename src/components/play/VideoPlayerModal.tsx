@@ -1,8 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { X, Heart, Share, Download } from 'lucide-react';
+import { X, Heart, Share } from 'lucide-react';
 import { Video } from '../../types';
+import { useAuthStore } from '../../store/authStore';
+import { useAppStore } from '../../store/appStore';
 import { Button } from '../ui/Button';
+import toast from 'react-hot-toast';
 
 interface VideoPlayerModalProps {
   video: Video;
@@ -10,6 +13,52 @@ interface VideoPlayerModalProps {
 }
 
 export function VideoPlayerModal({ video, onClose }: VideoPlayerModalProps) {
+  const { user } = useAuthStore();
+  const { likeVideo } = useAppStore();
+  const [isLiked, setIsLiked] = useState(video.isLiked);
+  const [likesCount, setLikesCount] = useState(video.likes);
+
+  const handleLike = () => {
+    if (!user) return;
+    
+    const newIsLiked = !isLiked;
+    const newLikesCount = newIsLiked ? likesCount + 1 : likesCount - 1;
+    
+    setIsLiked(newIsLiked);
+    setLikesCount(newLikesCount);
+    
+    likeVideo(video.id, user.id);
+    
+    if (newIsLiked) {
+      toast.success('Video liked! +2 tokens earned');
+    }
+  };
+
+  const handleShare = () => {
+    const shareUrl = `${window.location.origin}/video/${video.id}`;
+    const shareText = `Check out this ${video.type === 'premium' ? 'premium' : 'free'} ${video.category.replace('-', ' ')} video by ${video.coach.fullName}: "${video.title}"`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: video.title,
+        text: shareText,
+        url: shareUrl,
+      }).then(() => {
+        toast.success('Video shared successfully!');
+      }).catch(() => {
+        navigator.clipboard.writeText(`${shareText} ${shareUrl}`).then(() => {
+          toast.success('Video link copied to clipboard!');
+        });
+      });
+    } else {
+      navigator.clipboard.writeText(`${shareText} ${shareUrl}`).then(() => {
+        toast.success('Video link copied to clipboard!');
+      }).catch(() => {
+        toast.success('Video shared!');
+      });
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -79,11 +128,19 @@ export function VideoPlayerModal({ video, onClose }: VideoPlayerModalProps) {
             
             {/* Actions */}
             <div className="flex space-x-2 ml-4">
-              <Button variant="outline" size="sm">
-                <Heart className="h-4 w-4 mr-1" />
-                Like
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleLike}
+              >
+                <Heart className={`h-4 w-4 mr-1 ${isLiked ? 'fill-current text-red-500' : ''}`} />
+                {likesCount}
               </Button>
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleShare}
+              >
                 <Share className="h-4 w-4 mr-1" />
                 Share
               </Button>

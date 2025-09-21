@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Play, Clock, Eye, Heart, Lock, Coins } from 'lucide-react';
+import { Play, Clock, Eye, Heart, Lock, Coins, Share } from 'lucide-react';
 import { Video, UserTokens } from '../../types';
 import { useAuthStore } from '../../store/authStore';
 import { useAppStore } from '../../store/appStore';
@@ -62,6 +62,35 @@ export function VideoCard({ video, userTokens }: VideoCardProps) {
     
     if (newIsLiked) {
       toast.success('Video liked! +2 tokens earned');
+    }
+  };
+
+  const handleShare = () => {
+    if (!user) return;
+    
+    const shareUrl = `${window.location.origin}/video/${video.id}`;
+    const shareText = `Check out this ${video.type === 'premium' ? 'premium' : 'free'} ${video.category.replace('-', ' ')} video by ${video.coach.fullName}: "${video.title}"`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: video.title,
+        text: shareText,
+        url: shareUrl,
+      }).then(() => {
+        toast.success('Video shared successfully!');
+      }).catch(() => {
+        // Fallback to clipboard
+        navigator.clipboard.writeText(`${shareText} ${shareUrl}`).then(() => {
+          toast.success('Video link copied to clipboard!');
+        });
+      });
+    } else {
+      // Fallback to clipboard
+      navigator.clipboard.writeText(`${shareText} ${shareUrl}`).then(() => {
+        toast.success('Video link copied to clipboard!');
+      }).catch(() => {
+        toast.success('Video shared!');
+      });
     }
   };
 
@@ -179,6 +208,13 @@ export function VideoCard({ video, userTokens }: VideoCardProps) {
               >
                 <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
                 <span>{likesCount}</span>
+              </button>
+              <button
+                onClick={handleShare}
+                className="flex items-center space-x-1 text-gray-500 hover:text-blue-500 transition-colors"
+              >
+                <Share className="h-4 w-4" />
+                <span>Share</span>
               </button>
             </div>
             

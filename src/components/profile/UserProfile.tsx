@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Settings, Edit, Users, UserPlus, X } from 'lucide-react';
+import { Settings, Edit, Users, UserPlus, X, Share } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useAppStore } from '../../store/appStore';
 import { PostCard } from '../posts/PostCard';
 import { EditProfileModal } from './EditProfileModal';
 import { FollowersModal } from './FollowersModal';
 import { Button } from '../ui/Button';
+import toast from 'react-hot-toast';
 
 export function UserProfile() {
   const { user } = useAuthStore();

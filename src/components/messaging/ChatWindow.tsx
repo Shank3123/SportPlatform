@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Send, Image, Smile } from 'lucide-react';
+import { Send, Image, Smile, Share } from 'lucide-react';
 import { Conversation, Message } from '../../types';
 import { useAuthStore } from '../../store/authStore';
 import { useAppStore } from '../../store/appStore';
+import toast from 'react-hot-toast';
 
 interface ChatWindowProps {
   conversation: Conversation;
@@ -64,6 +65,31 @@ export function ChatWindow({ conversation }: ChatWindowProps) {
     setNewMessage('');
   };
 
+  const handleShareProfile = () => {
+    const shareUrl = `${window.location.origin}/profile/${otherUser.id}`;
+    const shareText = `Connect with ${otherUser.fullName} (@${otherUser.username}) - ${otherUser.role} specializing in ${otherUser.sportsCategory.replace('-', ' ')} on SportsFeed!`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: `${otherUser.fullName} - SportsFeed`,
+        text: shareText,
+        url: shareUrl,
+      }).then(() => {
+        toast.success('Profile shared successfully!');
+      }).catch(() => {
+        navigator.clipboard.writeText(`${shareText} ${shareUrl}`).then(() => {
+          toast.success('Profile link copied to clipboard!');
+        });
+      });
+    } else {
+      navigator.clipboard.writeText(`${shareText} ${shareUrl}`).then(() => {
+        toast.success('Profile link copied to clipboard!');
+      }).catch(() => {
+        toast.success('Profile shared!');
+      });
+    }
+  };
+
   const getVerificationBadge = () => {
     if (!otherUser.isVerified) return null;
     
@@ -84,20 +110,30 @@ export function ChatWindow({ conversation }: ChatWindowProps) {
     <div className="flex flex-col h-full bg-white">
       {/* Chat Header */}
       <div className="flex items-center space-x-3 p-4 border-b border-gray-200">
-        <img
-          src={otherUser.profileImage}
-          alt={otherUser.fullName}
-          className="h-10 w-10 rounded-full object-cover"
-        />
-        <div>
-          <div className="flex items-center space-x-1">
-            <h3 className="font-semibold text-gray-900">{otherUser.fullName}</h3>
-            {getVerificationBadge()}
+        <div className="flex items-center space-x-3 flex-1">
+          <img
+            src={otherUser.profileImage}
+            alt={otherUser.fullName}
+            className="h-10 w-10 rounded-full object-cover"
+          />
+          <div>
+            <div className="flex items-center space-x-1">
+              <h3 className="font-semibold text-gray-900">{otherUser.fullName}</h3>
+              {getVerificationBadge()}
+            </div>
+            <p className="text-sm text-gray-500 capitalize">
+              {otherUser.role} • {otherUser.sportsCategory.replace('-', ' ')}
+            </p>
           </div>
-          <p className="text-sm text-gray-500 capitalize">
-            {otherUser.role} • {otherUser.sportsCategory.replace('-', ' ')}
-          </p>
         </div>
+        
+        <button
+          onClick={handleShareProfile}
+          className="text-gray-400 hover:text-blue-500 transition-colors p-2 rounded-full hover:bg-gray-100"
+          title="Share Profile"
+        >
+          <Share className="h-5 w-5" />
+        </button>
       </div>
 
       {/* Messages */}
