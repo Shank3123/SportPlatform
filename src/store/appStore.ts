@@ -192,6 +192,9 @@ export const useAppStore = create<AppState>((set, get) => ({
   conversations: [],
   messages: [],
   notifications: mockNotifications,
+  videos: [],
+  memberships: [],
+  userTokens: [],
 
   setCurrentView: (view) => set({ currentView: view }),
 
