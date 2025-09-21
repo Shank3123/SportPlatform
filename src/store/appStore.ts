@@ -363,6 +363,11 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   likeVideo: (videoId, userId) => {
+    const { addTokens } = get();
+    
+    // Award tokens for liking videos
+    addTokens(userId, 2, 'earned', 'Liked video');
+    
     set((state) => ({
       videos: state.videos.map(video =>
         video.id === videoId

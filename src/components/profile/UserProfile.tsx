@@ -123,6 +123,14 @@ export function UserProfile() {
                 <Settings className="h-4 w-4 mr-2" />
                 Settings
               </Button>
+              <Button 
+                onClick={handleShareProfile}
+                variant="outline" 
+                size="sm"
+              >
+                <Share className="h-4 w-4 mr-2" />
+                Share Profile
+              </Button>
             </div>
           </div>
         </div>
