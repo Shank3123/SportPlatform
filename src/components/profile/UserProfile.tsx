@@ -37,6 +37,28 @@ export function UserProfile() {
     setShowFollowersModal(true);
   };
 
+  const handleShareProfile = () => {
+    const profileUrl = `${window.location.origin}/profile/${user.username}`;
+    const shareText = `Check out ${user.fullName}'s profile on SportsFeed! ${user.role === 'coach' ? 'Professional Coach' : 'Athlete'} in ${user.sportsCategory.replace('-', ' ')}`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: `${user.fullName} - SportsFeed`,
+        text: shareText,
+        url: profileUrl,
+      }).catch(() => {
+        // Fallback to clipboard if share fails
+        navigator.clipboard.writeText(profileUrl).then(() => {
+          toast.success('Profile link copied to clipboard!');
+        });
+      });
+    } else {
+      navigator.clipboard.writeText(profileUrl).then(() => {
+        toast.success('Profile link copied to clipboard!');
+      });
+    }
+  };
+
   const getVerificationBadge = () => {
     if (!user.isVerified) return null;
     

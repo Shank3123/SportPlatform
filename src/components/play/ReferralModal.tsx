@@ -27,6 +27,9 @@ export function ReferralModal({ onClose, userId }: ReferralModalProps) {
         title: 'Join SportsFeed',
         text: 'Join me on SportsFeed and get 50 free tokens!',
         url: referralLink,
+      }).catch(() => {
+        // Fallback to clipboard if share fails
+        copyToClipboard(referralLink);
       });
     } else {
       copyToClipboard(referralLink);
