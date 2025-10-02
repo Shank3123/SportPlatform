@@ -253,7 +253,7 @@ export function DiscoverPage() {
                 className="w-full"
                 variant={targetUser.role === 'coach' ? 'secondary' : 'primary'}
               >
-                Follow
+                {user && isFollowing(user.id, targetUser.id) ? 'Unfollow' : 'Follow'}
               </Button>
             </div>
           </motion.div>

@@ -213,6 +213,14 @@ export function PlayPage() {
           coachId={user.id}
         />
       )}
+      
+      {/* Watch Ad Modal */}
+      {showAdModal && (
+        <WatchAdModal
+          onClose={() => setShowAdModal(false)}
+          userId={user.id}
+        />
+      )}
     </motion.div>
   );
 }

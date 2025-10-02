@@ -8,6 +8,7 @@ interface AppState {
   conversations: Conversation[];
   messages: Message[];
   notifications: Notification[];
+  userFollowing: { followerId: string; followingId: string }[];
   setCurrentView: (view: AppState['currentView']) => void;
   addPost: (post: Post) => void;
   updatePostLikes: (postId: string, likes: number, isLiked: boolean) => void;
@@ -26,6 +27,10 @@ interface AppState {
   addNotification: (notification: Notification) => void;
   markNotificationAsRead: (notificationId: string) => void;
   updateUserInStore: (updatedUser: User) => void;
+  followUser: (userId: string, targetUserId: string) => void;
+  unfollowUser: (userId: string, targetUserId: string) => void;
+  isFollowing: (userId: string, targetUserId: string) => boolean;
+  watchAd: (userId: string) => void;
 }
 
 interface Notification {
@@ -195,6 +200,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   videos: [],
   memberships: [],
   userTokens: [],
+  userFollowing: [], // Array to track who follows whom
 
   setCurrentView: (view) => set({ currentView: view }),
 

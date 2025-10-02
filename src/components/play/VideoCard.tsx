@@ -246,6 +246,14 @@ export function VideoCard({ video, userTokens }: VideoCardProps) {
           onClose={() => setShowPlayer(false)}
         />
       )}
+      
+      {/* Watch Ad Modal */}
+      {showAdModal && (
+        <WatchAdModal
+          onClose={() => setShowAdModal(false)}
+          userId={user?.id || ''}
+        />
+      )}
     </>
   );
 }
