@@ -8,7 +8,7 @@ import { Button } from '../ui/Button';
 
 export function DiscoverPage() {
   const { user } = useAuthStore();
-  const { users } = useAppStore();
+  const { users, isFollowing } = useAppStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'coaches' | 'users'>('all');
   const [sportFilter, setSportFilter] = useState<'all' | 'coco' | 'martial-arts' | 'calorie-fight'>('all');
