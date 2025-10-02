@@ -16,6 +16,7 @@ export function PlayPage() {
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'coco' | 'martial-arts' | 'calorie-fight'>('all');
   const [typeFilter, setTypeFilter] = useState<'all' | 'free' | 'premium'>('all');
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showAdModal, setShowAdModal] = useState(false);
 
   if (!user) return null;
 
