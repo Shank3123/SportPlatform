@@ -366,6 +366,56 @@ export const useAppStore = create<AppState>((set, get) => ({
     }));
   },
 
+  followUser: (userId: string, targetUserId: string) => {
+    set((state) => {
+      // Add to following relationship
+      const newFollowing = { followerId: userId, followingId: targetUserId };
+      const updatedUserFollowing = [...state.userFollowing, newFollowing];
+      
+      // Update user counts
+      const updatedUsers = state.users.map(user => {
+        if (user.id === userId) {
+          return { ...user, following: user.following + 1 };
+        }
+        if (user.id === targetUserId) {
+          return { ...user, followers: user.followers + 1 };
+        }
+        return user;
+      });
+      
+      return { userFollowing: updatedUserFollowing, users: updatedUsers };
+    });
+  },
+
+  unfollowUser: (userId: string, targetUserId: string) => {
+    set((state) => {
+      // Remove from following relationship
+      const updatedUserFollowing = state.userFollowing.filter(
+        uf => !(uf.followerId === userId && uf.followingId === targetUserId)
+      );
+      
+      // Update user counts
+      const updatedUsers = state.users.map(user => {
+        if (user.id === userId) {
+          return { ...user, following: Math.max(0, user.following - 1) };
+        }
+        if (user.id === targetUserId) {
+          return { ...user, followers: Math.max(0, user.followers - 1) };
+        }
+        return user;
+      });
+      
+      return { userFollowing: updatedUserFollowing, users: updatedUsers };
+    });
+  },
+
+  isFollowing: (userId: string, targetUserId: string) => {
+    const { userFollowing } = get();
+    return userFollowing.some(
+      uf => uf.followerId === userId && uf.followingId === targetUserId
+    );
+  },
+
   // Video functions
   addVideo: (video) => set((state) => ({ videos: [video, ...state.videos] })),
 
@@ -530,5 +580,10 @@ export const useAppStore = create<AppState>((set, get) => ({
   getMembershipsByCoach: (coachId) => {
     const { memberships } = get();
     return memberships.filter(membership => membership.coachId === coachId);
+  },
+
+  watchAd: (userId: string) => {
+    const { addTokens } = get();
+    addTokens(userId, 10, 'earned', 'Watched advertisement');
   },
 }));
