@@ -31,6 +31,18 @@ interface AppState {
   unfollowUser: (userId: string, targetUserId: string) => void;
   isFollowing: (userId: string, targetUserId: string) => boolean;
   watchAd: (userId: string) => void;
+  addVideo: (video: Video) => void;
+  getVideosByCategory: (category: string) => Video[];
+  getVideosByCoach: (coachId: string) => Video[];
+  likeVideo: (videoId: string, userId: string) => void;
+  watchVideo: (videoId: string, userId: string) => void;
+  getUserTokens: (userId: string) => UserTokens;
+  addTokens: (userId: string, amount: number, reason: string, description: string) => void;
+  spendTokens: (userId: string, amount: number, reason: string, description: string) => boolean;
+  purchaseTokens: (userId: string, amount: number, price: number) => void;
+  addMembership: (membership: Membership) => void;
+  getMembershipsByCoach: (coachId: string) => Membership[];
+  watchAd: (userId: string) => void;
 }
 
 interface Notification {
