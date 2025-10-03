@@ -7,6 +7,7 @@ import { VideoCard } from './VideoCard';
 import { TokenWallet } from './TokenWallet';
 import { MembershipCard } from './MembershipCard';
 import { UploadVideoModal } from './UploadVideoModal';
+import { WatchAdModal } from './WatchAdModal';
 import { Button } from '../ui/Button';
 
 export function PlayPage() {

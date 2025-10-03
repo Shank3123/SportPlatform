@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, Heart, Share } from 'lucide-react';
 import { Video } from '../../types';

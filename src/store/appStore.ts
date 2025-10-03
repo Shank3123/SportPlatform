@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { User, Post, Comment, Message, Conversation, Video, Membership, UserTokens, TokenTransaction } from '../types';
 
 interface AppState {
   currentView: 'home' | 'discover' | 'notifications' | 'messages' | 'profile' | 'expert';
@@ -8,6 +9,9 @@ interface AppState {
   conversations: Conversation[];
   messages: Message[];
   notifications: Notification[];
+  videos: Video[];
+  memberships: Membership[];
+  userTokens: UserTokens[];
   userFollowing: { followerId: string; followingId: string }[];
   setCurrentView: (view: AppState['currentView']) => void;
   addPost: (post: Post) => void;
