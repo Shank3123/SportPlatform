@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Settings, CreditCard as Edit, Users, UserPlus, X, Share } from 'lucide-react';
+import { Settings, CreditCard as Edit, Users, UserPlus, Share } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useAppStore } from '../../store/appStore';
 import { PostCard } from '../posts/PostCard';
 import { EditProfileModal } from './EditProfileModal';
 import { FollowersModal } from './FollowersModal';
+import { SettingsModal } from './SettingsModal';
 import { Button } from '../ui/Button';
 import toast from 'react-hot-toast';
 
@@ -233,50 +234,7 @@ export function UserProfile() {
       )}
 
       {showSettings && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900">Settings</h2>
-              <button
-                onClick={() => setShowSettings(false)}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <X className="h-6 w-6" />
-              </button>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <span className="text-gray-700">Push Notifications</span>
-                <input type="checkbox" defaultChecked className="toggle" />
-              </div>
-              
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <span className="text-gray-700">Email Notifications</span>
-                <input type="checkbox" defaultChecked className="toggle" />
-              </div>
-              
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <span className="text-gray-700">Privacy Mode</span>
-                <input type="checkbox" className="toggle" />
-              </div>
-              
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <span className="text-gray-700">Dark Mode</span>
-                <input type="checkbox" className="toggle" />
-              </div>
-            </div>
-            
-            <div className="mt-6 pt-4 border-t">
-              <Button
-                onClick={() => setShowSettings(false)}
-                className="w-full"
-              >
-                Save Settings
-              </Button>
-            </div>
-          </div>
-        </div>
+        <SettingsModal onClose={() => setShowSettings(false)} />
       )}
     </div>
   );

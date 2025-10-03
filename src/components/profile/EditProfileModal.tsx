@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, Upload, User } from 'lucide-react';
+import { X, Upload } from 'lucide-react';
 import { User as UserType } from '../../types';
 import { useAuthStore } from '../../store/authStore';
+import { useAppStore } from '../../store/appStore';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import toast from 'react-hot-toast';
@@ -14,6 +15,7 @@ interface EditProfileModalProps {
 
 export function EditProfileModal({ user, onClose }: EditProfileModalProps) {
   const { updateUser } = useAuthStore();
+  const { updateUserInStore } = useAppStore();
   const [formData, setFormData] = useState({
     fullName: user.fullName,
     username: user.username,
@@ -49,7 +51,6 @@ export function EditProfileModal({ user, onClose }: EditProfileModalProps) {
     setIsLoading(true);
 
     try {
-      // Mock API call
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       const updatedData: Partial<UserType> = {
@@ -59,11 +60,14 @@ export function EditProfileModal({ user, onClose }: EditProfileModalProps) {
       };
 
       if (profileImage) {
-        // In a real app, you'd upload the image to a server
         updatedData.profileImage = previewImage;
       }
 
       updateUser(updatedData);
+
+      const updatedUser = { ...user, ...updatedData };
+      updateUserInStore(updatedUser);
+
       toast.success('Profile updated successfully!');
       onClose();
     } catch (error) {
