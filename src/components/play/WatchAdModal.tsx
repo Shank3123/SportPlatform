@@ -148,7 +148,7 @@ export function WatchAdModal({ onClose, userId }: WatchAdModalProps) {
             </div>
           )}
         </div>
-      </div>
+      </motion.div>
     </motion.div>
   );
 }

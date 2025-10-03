@@ -6,6 +6,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useAppStore } from '../../store/appStore';
 import { Button } from '../ui/Button';
 import { VideoPlayerModal } from './VideoPlayerModal';
+import { WatchAdModal } from './WatchAdModal';
 import toast from 'react-hot-toast';
 
 interface VideoCardProps {
@@ -17,6 +18,7 @@ export function VideoCard({ video, userTokens }: VideoCardProps) {
   const { user } = useAuthStore();
   const { likeVideo, spendTokens, watchVideo } = useAppStore();
   const [showPlayer, setShowPlayer] = useState(false);
+  const [showAdModal, setShowAdModal] = useState(false);
   const [isLiked, setIsLiked] = useState(video.isLiked);
   const [likesCount, setLikesCount] = useState(video.likes);
 
