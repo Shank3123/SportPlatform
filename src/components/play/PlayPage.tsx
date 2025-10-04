@@ -8,6 +8,7 @@ import { TokenWallet } from './TokenWallet';
 import { MembershipCard } from './MembershipCard';
 import { UploadVideoModal } from './UploadVideoModal';
 import { WatchAdModal } from './WatchAdModal';
+import { CreateMembershipModal } from './CreateMembershipModal';
 import { Button } from '../ui/Button';
 
 export function PlayPage() {
@@ -17,6 +18,7 @@ export function PlayPage() {
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'coco' | 'martial-arts' | 'calorie-fight'>('all');
   const [typeFilter, setTypeFilter] = useState<'all' | 'free' | 'premium'>('all');
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showCreateMembershipModal, setShowCreateMembershipModal] = useState(false);
   const [showAdModal, setShowAdModal] = useState(false);
 
   if (!user) return null;
@@ -24,8 +26,8 @@ export function PlayPage() {
   const userTokens = getUserTokens(user.id);
   const filteredVideos = getVideosByCategory(categoryFilter === 'all' ? 'all' : categoryFilter)
     .filter(video => typeFilter === 'all' || video.type === typeFilter);
-  
-  const userMemberships = user.role === 'coach' ? getMembershipsByCoach(user.id) : [];
+
+  const displayMemberships = user.role === 'coach' ? getMembershipsByCoach(user.id) : memberships;
 
   const formatDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -76,7 +78,7 @@ export function PlayPage() {
               }`}
             >
               <Star className="h-4 w-4 inline mr-2" />
-              Memberships ({memberships.length})
+              {user.role === 'coach' ? 'My Memberships' : 'Memberships'} ({displayMemberships.length})
             </button>
             
             {user.role === 'coach' && (
@@ -162,18 +164,42 @@ export function PlayPage() {
         )}
 
         {activeTab === 'memberships' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {memberships.map((membership) => (
-              <MembershipCard key={membership.id} membership={membership} userTokens={userTokens} />
-            ))}
-            
-            {memberships.length === 0 && (
-              <div className="text-center py-12">
-                <Star className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No memberships available</h3>
-                <p className="text-gray-600">Check back later for exclusive membership opportunities.</p>
+          <div className="space-y-6">
+            {user.role === 'coach' && displayMemberships.length > 0 && (
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  <strong>Coach Dashboard:</strong> These are the memberships you've created. Users can purchase these to access your exclusive content.
+                </p>
               </div>
             )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {displayMemberships.map((membership) => (
+                <MembershipCard key={membership.id} membership={membership} userTokens={userTokens} />
+              ))}
+
+              {displayMemberships.length === 0 && (
+                <div className="col-span-full text-center py-12">
+                  <Star className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    {user.role === 'coach' ? 'No memberships created yet' : 'No memberships available'}
+                  </h3>
+                  <p className="text-gray-600">
+                    {user.role === 'coach'
+                      ? 'Create your first membership to offer exclusive content to your followers.'
+                      : 'Check back later for exclusive membership opportunities.'}
+                  </p>
+                  {user.role === 'coach' && (
+                    <Button
+                      onClick={() => setShowCreateMembershipModal(true)}
+                      className="mt-4"
+                    >
+                      Create Your First Membership
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -199,6 +225,7 @@ export function PlayPage() {
                   variant="outline"
                   className="w-full"
                   size="lg"
+                  onClick={() => setShowCreateMembershipModal(true)}
                 >
                   Create Membership
                 </Button>
@@ -215,7 +242,15 @@ export function PlayPage() {
           coachId={user.id}
         />
       )}
-      
+
+      {/* Create Membership Modal */}
+      {showCreateMembershipModal && (
+        <CreateMembershipModal
+          onClose={() => setShowCreateMembershipModal(false)}
+          coachId={user.id}
+        />
+      )}
+
       {/* Watch Ad Modal */}
       {showAdModal && (
         <WatchAdModal
