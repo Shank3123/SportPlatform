@@ -6,6 +6,8 @@ import { useAuthStore } from '../../store/authStore';
 import { useSocketStore } from '../../store/socketStore';
 import { useAppStore } from '../../store/appStore';
 import { Button } from '../ui/Button';
+import { CreateGroupModal } from './CreateGroupModal';
+
 interface MessageListProps {
   onConversationSelect: (conversation: Conversation) => void;
 }
@@ -15,6 +17,7 @@ export function MessageList({ onConversationSelect }: MessageListProps) {
   const { getConversations } = useAppStore();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showCreateGroup, setShowCreateGroup] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -32,11 +35,16 @@ export function MessageList({ onConversationSelect }: MessageListProps) {
   );
 
   return (
-    <div className="h-full bg-white border-r border-gray-200">
+    <>
+      <div className="h-full bg-white border-r border-gray-200">
       <div className="p-4 border-b border-gray-200">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-gray-900">Messages</h2>
-          <Button size="sm" variant="outline">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setShowCreateGroup(true)}
+          >
             <Plus className="h-4 w-4" />
           </Button>
         </div>
@@ -106,5 +114,10 @@ export function MessageList({ onConversationSelect }: MessageListProps) {
         })}
       </div>
     </div>
+
+      {showCreateGroup && (
+        <CreateGroupModal onClose={() => setShowCreateGroup(false)} />
+      )}
+    </>
   );
 }

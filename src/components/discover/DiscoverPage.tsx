@@ -8,33 +8,37 @@ import { Button } from '../ui/Button';
 
 export function DiscoverPage() {
   const { user } = useAuthStore();
-  const { users, isFollowing } = useAppStore();
+  const { users, isFollowing, followUser, unfollowUser } = useAppStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'coaches' | 'users'>('all');
   const [sportFilter, setSportFilter] = useState<'all' | 'coco' | 'martial-arts' | 'calorie-fight'>('all');
 
   if (!user) return null;
 
-  // Get all users instead of just same sport category
   const allUsers = users.filter(u => u.id !== user.id);
-  
+
   const searchResults = allUsers.filter(u => {
     const matchesSearch = u.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          u.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          u.bio?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesFilter = filterType === 'all' || 
+
+    const matchesFilter = filterType === 'all' ||
                          (filterType === 'coaches' && u.role === 'coach') ||
                          (filterType === 'users' && u.role === 'user');
-    
+
     const matchesSport = sportFilter === 'all' || u.sportsCategory === sportFilter;
-    
+
     return matchesSearch && matchesFilter && matchesSport;
   });
 
   const handleFollow = (userId: string) => {
-    // Mock follow functionality
-    console.log('Following user:', userId);
+    if (!user) return;
+
+    if (isFollowing(user.id, userId)) {
+      unfollowUser(user.id, userId);
+    } else {
+      followUser(user.id, userId);
+    }
   };
 
   const getVerificationBadge = (targetUser: User) => {
