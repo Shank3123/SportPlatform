@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Heart, MessageCircle, Share, MoreHorizontal, Send } from 'lucide-react';
+import { Heart, MessageCircle, Share, MoreHorizontal, Send, Volume2 } from 'lucide-react';
 import { Post } from '../../types';
 import { useAppStore } from '../../store/appStore';
 import { useAuthStore } from '../../store/authStore';
@@ -184,6 +184,35 @@ export function PostCard({ post }: PostCardProps) {
         </button>
       </div>
 
+      {/* Content */}
+      {post.content && (
+        <div className="px-4 pb-3">
+          <p className="text-gray-900 whitespace-pre-wrap">{post.content}</p>
+        </div>
+      )}
+
+      {/* Voice Note */}
+      {(post as any).audioUrl && (
+        <div className="px-4 pb-3">
+          <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-lg border border-green-200">
+            <div className="flex items-center space-x-3">
+              <div className="flex-shrink-0 bg-green-500 p-2 rounded-full">
+                <Volume2 className="h-5 w-5 text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-700 mb-2">Voice Note</p>
+                <audio
+                  src={(post as any).audioUrl}
+                  controls
+                  className="w-full h-10"
+                  style={{ maxWidth: '100%' }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Media */}
       {post.mediaUrl && (
         <div className="relative">
@@ -203,10 +232,8 @@ export function PostCard({ post }: PostCardProps) {
         </div>
       )}
 
-      {/* Content */}
+      {/* Actions */}
       <div className="p-4">
-        <p className="text-gray-900 mb-3">{post.content}</p>
-        
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-6">
             <motion.button

@@ -1,24 +1,27 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Play, Clock, Eye, Heart, Star, Filter, Coins } from 'lucide-react';
+import { Play, Clock, Eye, Heart, Star, Filter, Coins, Radio } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useAppStore } from '../../store/appStore';
 import { VideoCard } from './VideoCard';
 import { TokenWallet } from './TokenWallet';
 import { MembershipCard } from './MembershipCard';
+import { LivestreamCard } from './LivestreamCard';
 import { UploadVideoModal } from './UploadVideoModal';
 import { WatchAdModal } from './WatchAdModal';
 import { CreateMembershipModal } from './CreateMembershipModal';
+import { CreateLivestreamModal } from './CreateLivestreamModal';
 import { Button } from '../ui/Button';
 
 export function PlayPage() {
   const { user } = useAuthStore();
-  const { videos, memberships, getVideosByCategory, getMembershipsByCoach, getUserTokens } = useAppStore();
-  const [activeTab, setActiveTab] = useState<'videos' | 'memberships' | 'upload'>('videos');
+  const { videos, memberships, livestreams, getVideosByCategory, getMembershipsByCoach, getUserTokens, getLivestreams } = useAppStore();
+  const [activeTab, setActiveTab] = useState<'videos' | 'memberships' | 'livestreams' | 'upload'>('videos');
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'coco' | 'martial-arts' | 'calorie-fight'>('all');
   const [typeFilter, setTypeFilter] = useState<'all' | 'free' | 'premium'>('all');
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showCreateMembershipModal, setShowCreateMembershipModal] = useState(false);
+  const [showCreateLivestreamModal, setShowCreateLivestreamModal] = useState(false);
   const [showAdModal, setShowAdModal] = useState(false);
 
   if (!user) return null;
@@ -28,6 +31,7 @@ export function PlayPage() {
     .filter(video => typeFilter === 'all' || video.type === typeFilter);
 
   const displayMemberships = user.role === 'coach' ? getMembershipsByCoach(user.id) : memberships;
+  const displayLivestreams = getLivestreams ? getLivestreams(categoryFilter === 'all' ? 'all' : categoryFilter) : [];
 
   const formatDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -80,7 +84,19 @@ export function PlayPage() {
               <Star className="h-4 w-4 inline mr-2" />
               {user.role === 'coach' ? 'My Memberships' : 'Memberships'} ({displayMemberships.length})
             </button>
-            
+
+            <button
+              onClick={() => setActiveTab('livestreams')}
+              className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'livestreams'
+                  ? 'border-red-500 text-red-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <Radio className="h-4 w-4 inline mr-2" />
+              Livestreams ({displayLivestreams.length})
+            </button>
+
             {user.role === 'coach' && (
               <button
                 onClick={() => setActiveTab('upload')}
@@ -203,15 +219,65 @@ export function PlayPage() {
           </div>
         )}
 
+        {activeTab === 'livestreams' && (
+          <div className="space-y-6">
+            {user.role === 'coach' && (
+              <div className="bg-red-50 p-4 rounded-lg flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-red-800 font-medium">
+                    <strong>Start a Livestream:</strong> Connect with your audience in real-time
+                  </p>
+                </div>
+                <Button
+                  onClick={() => setShowCreateLivestreamModal(true)}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  <Radio className="h-4 w-4 mr-2" />
+                  Go Live
+                </Button>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {displayLivestreams.map((livestream: any) => (
+                <LivestreamCard key={livestream.id} livestream={livestream} />
+              ))}
+
+              {displayLivestreams.length === 0 && (
+                <div className="col-span-full text-center py-12">
+                  <Radio className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    No livestreams available
+                  </h3>
+                  <p className="text-gray-600">
+                    {user.role === 'coach'
+                      ? 'Start your first livestream to connect with your audience.'
+                      : 'Check back later for live training sessions.'}
+                  </p>
+                  {user.role === 'coach' && (
+                    <Button
+                      onClick={() => setShowCreateLivestreamModal(true)}
+                      className="mt-4 bg-red-600 hover:bg-red-700"
+                    >
+                      <Radio className="h-4 w-4 mr-2" />
+                      Start Livestream
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {activeTab === 'upload' && user.role === 'coach' && (
           <div className="bg-white rounded-lg shadow-md p-8 text-center">
             <div className="max-w-md mx-auto">
               <Play className="h-16 w-16 text-blue-500 mx-auto mb-4" />
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Upload Your Content</h2>
               <p className="text-gray-600 mb-6">
-                Share your expertise with the community. Upload training videos and create membership programs.
+                Share your expertise with the community. Upload training videos, create membership programs, or start a livestream.
               </p>
-              
+
               <div className="space-y-4">
                 <Button
                   onClick={() => setShowUploadModal(true)}
@@ -220,7 +286,7 @@ export function PlayPage() {
                 >
                   Upload Video
                 </Button>
-                
+
                 <Button
                   variant="outline"
                   className="w-full"
@@ -228,6 +294,16 @@ export function PlayPage() {
                   onClick={() => setShowCreateMembershipModal(true)}
                 >
                   Create Membership
+                </Button>
+
+                <Button
+                  variant="outline"
+                  className="w-full bg-red-50 hover:bg-red-100 text-red-700 border-red-300"
+                  size="lg"
+                  onClick={() => setShowCreateLivestreamModal(true)}
+                >
+                  <Radio className="h-5 w-5 mr-2" />
+                  Start Livestream
                 </Button>
               </div>
             </div>
@@ -248,6 +324,13 @@ export function PlayPage() {
         <CreateMembershipModal
           onClose={() => setShowCreateMembershipModal(false)}
           coachId={user.id}
+        />
+      )}
+
+      {/* Create Livestream Modal */}
+      {showCreateLivestreamModal && (
+        <CreateLivestreamModal
+          onClose={() => setShowCreateLivestreamModal(false)}
         />
       )}
 
