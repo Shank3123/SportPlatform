@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { User, Post, Comment, Message, Conversation, Video, Membership, UserTokens, TokenTransaction } from '../types';
 
 interface AppState {
-  currentView: 'home' | 'discover' | 'notifications' | 'messages' | 'profile' | 'expert';
+  currentView: 'home' | 'discover' | 'notifications' | 'messages' | 'profile' | 'expert' | 'play' | 'map';
   posts: Post[];
   users: User[];
   comments: Comment[];
@@ -47,6 +47,9 @@ interface AppState {
   addMembership: (membership: Membership) => void;
   getMembershipsByCoach: (coachId: string) => Membership[];
   watchAd: (userId: string) => void;
+  livestreams: any[];
+  addLivestream: (livestream: any) => void;
+  getLivestreams: (category: string) => any[];
 }
 
 interface Notification {
@@ -216,7 +219,8 @@ export const useAppStore = create<AppState>((set, get) => ({
   videos: [],
   memberships: [],
   userTokens: [],
-  userFollowing: [], // Array to track who follows whom
+  userFollowing: [],
+  livestreams: [],
 
   setCurrentView: (view) => set({ currentView: view }),
 
@@ -589,5 +593,16 @@ export const useAppStore = create<AppState>((set, get) => ({
   watchAd: (userId: string) => {
     const { addTokens } = get();
     addTokens(userId, 10, 'earned', 'Watched advertisement');
+  },
+
+  // Livestream functions
+  addLivestream: (livestream) => set((state) => ({
+    livestreams: [...state.livestreams, livestream]
+  })),
+
+  getLivestreams: (category) => {
+    const { livestreams } = get();
+    if (category === 'all') return livestreams;
+    return livestreams.filter(stream => stream.category === category);
   },
 }));
